@@ -132,10 +132,10 @@ export interface TraccarConfig {
 }
 
 export const DEFAULT_TRACCAR_CONFIG: TraccarConfig = {
-  host: 'localhost',
-  port: 8082,
-  email: 'admin',
-  password: 'admin',
+  host: (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_TRACCAR_HOST) || 'localhost',
+  port: Number((typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_TRACCAR_PORT)) || 8082,
+  email: (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_TRACCAR_EMAIL) || 'ovalle_938@hotmail.com',
+  password: (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_TRACCAR_PASSWORD) || '123456789',
   useHttps: false,
 };
 

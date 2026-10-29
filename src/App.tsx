@@ -190,39 +190,77 @@ export default function App() {
   }, []);
 
   // Traccar GPS Server Integration (auto-connects to localhost:8082 or configured host)
+  const [traccarConnected, setTraccarConnected] = useState(false);
   useEffect(() => {
     let isMounted = true;
+    const deviceMap = new Map<number, { uniqueId: string; name: string }>();
+
+    const traccarHost = (import.meta as any).env?.VITE_TRACCAR_HOST || window.location.hostname || 'localhost';
+    const traccarPort = Number((import.meta as any).env?.VITE_TRACCAR_PORT) || 8082;
+    const traccarEmail = (import.meta as any).env?.VITE_TRACCAR_EMAIL || 'ovalle_938@hotmail.com';
+    const traccarPassword = (import.meta as any).env?.VITE_TRACCAR_PASSWORD || '123456789';
+
+    const handlePositions = (positions: any[]) => {
+      if (!isMounted || !positions?.length) return;
+      setVehicles(prev => prev.map(veh => {
+        const devImei = veh.mdvrConfig?.deviceId;
+        const matchingPos = positions.find(p => {
+          const dev = deviceMap.get(p.deviceId);
+          if (dev) {
+            if (devImei && dev.uniqueId === devImei) return true;
+            if (dev.name === veh.unitNumber || dev.name === veh.plate) return true;
+          }
+          return String(p.deviceId) === String(veh.id) || (devImei && String(p.deviceId) === devImei);
+        });
+
+        if (matchingPos) {
+          const update = TraccarService_helper(matchingPos);
+          return {
+            ...veh,
+            ...update,
+            isRealHardware: true,
+            realGpsActive: true,
+            lastUpdate: new Date().toLocaleTimeString('es-VE') + ' (Traccar GPS)'
+          };
+        }
+        return veh;
+      }));
+    };
 
     traccarService.connect(
       {
-        host: window.location.hostname || 'localhost',
-        port: 8082,
-        email: 'admin',
-        password: 'admin',
+        host: traccarHost,
+        port: traccarPort,
+        email: traccarEmail,
+        password: traccarPassword,
       },
       {
-        onPositions: (positions) => {
-          if (!isMounted) return;
-          // Actualiza vehículos que coincidan por ID o que sean unidades de hardware real
-          setVehicles(prev => prev.map(veh => {
-            const devId = veh.mdvrConfig?.deviceId;
-            const matchingPos = positions.find(p => String(p.deviceId) === String(veh.id) || (devId && String(p.deviceId) === devId));
-            if (matchingPos) {
-              const update = TraccarService_helper(matchingPos);
-              return {
-                ...veh,
-                ...update,
-                lastUpdate: new Date().toLocaleTimeString('es-VE') + ' (Traccar Real)'
-              };
-            }
-            return veh;
-          }));
+        onDevices: (devices) => {
+          devices.forEach(d => deviceMap.set(d.id, { uniqueId: d.uniqueId, name: d.name }));
         },
-        onConnected: () => {
+        onPositions: handlePositions,
+        onConnected: async () => {
+          if (!isMounted) return;
           console.log('[LATICON] ✅ Conectado en vivo al servidor Traccar');
+          setTraccarConnected(true);
+          try {
+            const [devices, positions] = await Promise.all([
+              traccarService.getDevices(),
+              traccarService.getPositions()
+            ]);
+            if (isMounted) {
+              devices.forEach(d => deviceMap.set(d.id, { uniqueId: d.uniqueId, name: d.name }));
+              if (positions?.length) handlePositions(positions);
+            }
+          } catch (e) {
+            console.warn('[LATICON] Error sincronizando estado inicial Traccar:', e);
+          }
+        },
+        onDisconnected: () => {
+          if (isMounted) setTraccarConnected(false);
         },
         onError: (err) => {
-          // Servidor Traccar local aún no iniciado o en espera
+          if (isMounted) setTraccarConnected(false);
           console.info('[LATICON] Traccar servidor local en espera (puerto 8082)');
         }
       }
@@ -610,8 +648,8 @@ export default function App() {
                       <span className="w-2.5 h-2.5 rounded-full bg-[#106735] animate-pulse"></span>
                       <span className="font-bold text-slate-800">
                         {onlyRealHardwareMode 
-                          ? `📡 Modo Hardware Real: #${selectedVehicle.plate}` 
-                          : `Flota Mixta (1 Real #${vehicles.find(v => v.isRealHardware)?.plate || 'A99AW0N'} / ${vehicles.length - 1} Demo)`}
+                          ? `📡 Modo Hardware Real (${realVehiclesCount} Unidades Activas)` 
+                          : `Flota Mixta (${realVehiclesCount} Real / ${vehicles.length - realVehiclesCount} Demo)`}
                       </span>
                     </div>
 
