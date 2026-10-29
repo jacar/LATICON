@@ -1,0 +1,6 @@
+{
+  "name": "RF Telematics & MDVR Tracker",
+  "description": "Plataforma integral de rastreo vehicular GPS y cámaras telemétricas MDVR en tiempo real con monitoreo en vivo, analítica Ecodrive y gestión de flotas.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
