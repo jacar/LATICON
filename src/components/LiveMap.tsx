@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
+import vehicleMarkerImage from '../iconomarca.png';
 import { Vehicle, GeofenceZone } from '../types/telematics';
 import { 
   Maximize, 
@@ -370,11 +371,12 @@ export const LiveMap: React.FC<LiveMapProps> = ({
             transition: transform 0.3s ease;
           ">
             <img 
-              src="${TRUCK_ICON_DATA_URI}" 
+              src="${vehicleMarkerImage}"
               alt="Vehículo ${vehicle.unitNumber}"
               style="
-                width: ${isSelected ? '62px' : '50px'};
-                height: auto;
+                width: ${isSelected ? '68px' : '62px'};
+                height: ${isSelected ? '44px' : '40px'};
+                object-fit: cover;
                 display: block;
                 transform: scaleX(${isFacingWest ? -1 : 1});
                 transition: transform 0.3s ease, width 0.2s;
