@@ -846,8 +846,8 @@ export const INITIAL_EVENTS: TelemetryEvent[] = [
 export const INITIAL_USERS: UserAccount[] = [
   {
     id: 'usr-1',
-    name: 'Administrador RF Import',
-    email: 'grouptracking3@gmail.com',
+    name: 'Master',
+    email: 'tic@laticon.com',
     role: 'Super Admin',
     status: 'active',
     assignedPlatesCount: 26,
@@ -859,40 +859,6 @@ export const INITIAL_USERS: UserAccount[] = [
       exportReports: true,
       manageUsers: true,
       configMDVR: true
-    }
-  },
-  {
-    id: 'usr-2',
-    name: 'Carlos Rangel - Centro de Control',
-    email: 'monitoreo1@rfimportca.com',
-    role: 'Operador',
-    status: 'active',
-    assignedPlatesCount: 15,
-    lastLogin: '28-10-2026 11:22:00',
-    permissions: {
-      liveTracking: true,
-      mdvrLiveView: true,
-      engineCutCommand: false,
-      exportReports: true,
-      manageUsers: false,
-      configMDVR: false
-    }
-  },
-  {
-    id: 'usr-3',
-    name: 'Auditoría y Seguridad Vial',
-    email: 'auditoria@rfimportca.com',
-    role: 'Auditor',
-    status: 'active',
-    assignedPlatesCount: 26,
-    lastLogin: '27-10-2026 18:05:40',
-    permissions: {
-      liveTracking: true,
-      mdvrLiveView: true,
-      engineCutCommand: false,
-      exportReports: true,
-      manageUsers: false,
-      configMDVR: false
     }
   }
 ];
