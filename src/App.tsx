@@ -418,7 +418,7 @@ export default function App() {
   }
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#F8F9FA] text-[#111111]">
+    <div className="light-interface flex h-screen w-screen overflow-hidden bg-[#F8F9FA] text-[#111111]">
       
       {/* Left Sidebar Navigation */}
       {!isVideoWallKiosk && (
